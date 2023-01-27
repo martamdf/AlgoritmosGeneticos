@@ -1,0 +1,647 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "id": "fe3ca24b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#inicializar población\n",
+    "#representar cromosoma\n",
+    "po = 6 #Número de individuos por población\n",
+    "pm = 0.15 #Probabilidad de mutación\n",
+    "pc = 0.9 #Probabilidad de cruzamiento\n",
+    "GenMax = 100 #Número de generaciones máx\n",
+    "Cantidad_objetos = 10\n",
+    "Peso_minimo = 20 #kilogramos\n",
+    "Peso_maximo = 200 #kilogramos\n",
+    "#Definimos el valor de esos objetos (aleatoriamente)\n",
+    "valor_minimo = 100 #euros\n",
+    "valor_maximo = 1200 #euros\n",
+    "Peso_maximo_mochila = 600 #kilogramos"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 32,
+   "id": "b52eed2b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import random as rd\n",
+    "import numpy as np\n",
+    "import pandas as pd"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "id": "aa785f24",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "([193, 135, 23, 161, 51, 138, 187, 36, 124, 167],\n",
+       " [371, 695, 933, 1007, 954, 1101, 873, 799, 391, 496])"
+      ]
+     },
+     "execution_count": 18,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "pesos = random.sample(range(20,200),10)\n",
+    "valores = random.sample (range(100,1200),10)\n",
+    "pesos, valores"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 22,
+   "id": "073fae8a",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "([1, 0, 1, 0, 1, 1, 0, 1, 0, 0], 441)"
+      ]
+     },
+     "execution_count": 22,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "#prueba\n",
+    "g = random.choices([0,1],k=10)\n",
+    "prueba = np.dot(g,pesos)\n",
+    "\n",
+    "g,prueba"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 26,
+   "id": "f1a5a6be",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "[[0, 1, 0, 1, 1, 1, 0, 0, 0, 0],\n",
+       " [0, 1, 1, 0, 1, 0, 0, 1, 0, 0],\n",
+       " [0, 0, 1, 1, 0, 0, 1, 0, 1, 0],\n",
+       " [0, 0, 0, 1, 0, 1, 1, 1, 0, 0],\n",
+       " [1, 0, 0, 1, 1, 0, 1, 0, 0, 0],\n",
+       " [1, 1, 0, 0, 1, 0, 0, 1, 1, 0]]"
+      ]
+     },
+     "execution_count": 26,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "#generar poblacion de 6 individuos con 6 cromosomas de 10 genes cada uno (binario), con las condiciones \n",
+    "#de pesos y valores\n",
+    "individuos=[]\n",
+    "while len(individuos)<po:\n",
+    "    g = random.choices([0,1],k=10)\n",
+    "    peso_cromosoma = np.dot(g,pesos)\n",
+    "    if peso_cromosoma < Peso_maximo_mochila:\n",
+    "        individuos.append(g)\n",
+    "individuos"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 35,
+   "id": "f6259571",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[3757, 3381, 3204, 3780, 3205, 3210]\n"
+     ]
+    }
+   ],
+   "source": [
+    "#selección por torneo\n",
+    "#calcular fitness y luego pasarlo todo a data frame\n",
+    "fitness=[]\n",
+    "for i in individuos:\n",
+    "    fitness.append(np.dot(i,valores))\n",
+    "    \n",
+    "print (fitness)\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 42,
+   "id": "df194c50",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0    3757\n",
+       "1    3381\n",
+       "2    3204\n",
+       "3    3780\n",
+       "4    3205\n",
+       "5    3210\n",
+       "dtype: int64"
+      ]
+     },
+     "execution_count": 42,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df = pd.DataFrame(individuos)\n",
+    "fitness_mochila = df.apply(lambda row: np.dot(row,valores),axis=1)\n",
+    "fitness_mochila"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 41,
+   "id": "6ce77fe5",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0    485\n",
+       "1    245\n",
+       "2    495\n",
+       "3    522\n",
+       "4    592\n",
+       "5    539\n",
+       "dtype: int64"
+      ]
+     },
+     "execution_count": 41,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "peso_mochila = df.apply(lambda row: np.dot(row,pesos),axis=1)\n",
+    "peso_mochila"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 47,
+   "id": "2b999785",
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>0</th>\n",
+       "      <th>1</th>\n",
+       "      <th>2</th>\n",
+       "      <th>3</th>\n",
+       "      <th>4</th>\n",
+       "      <th>5</th>\n",
+       "      <th>6</th>\n",
+       "      <th>7</th>\n",
+       "      <th>8</th>\n",
+       "      <th>9</th>\n",
+       "      <th>fitness_mochila</th>\n",
+       "      <th>peso_mochila</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>3757</td>\n",
+       "      <td>485</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>3381</td>\n",
+       "      <td>245</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>3204</td>\n",
+       "      <td>495</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>3780</td>\n",
+       "      <td>522</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>3205</td>\n",
+       "      <td>592</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>5</th>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>3210</td>\n",
+       "      <td>539</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "   0  1  2  3  4  5  6  7  8  9  fitness_mochila  peso_mochila\n",
+       "0  0  1  0  1  1  1  0  0  0  0             3757           485\n",
+       "1  0  1  1  0  1  0  0  1  0  0             3381           245\n",
+       "2  0  0  1  1  0  0  1  0  1  0             3204           495\n",
+       "3  0  0  0  1  0  1  1  1  0  0             3780           522\n",
+       "4  1  0  0  1  1  0  1  0  0  0             3205           592\n",
+       "5  1  1  0  0  1  0  0  1  1  0             3210           539"
+      ]
+     },
+     "execution_count": 47,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df['fitness_mochila'] = fitness_mochila\n",
+    "df['peso_mochila'] = peso_mochila\n",
+    "df"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 75,
+   "id": "137d71a4",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>0</th>\n",
+       "      <th>1</th>\n",
+       "      <th>2</th>\n",
+       "      <th>3</th>\n",
+       "      <th>4</th>\n",
+       "      <th>5</th>\n",
+       "      <th>6</th>\n",
+       "      <th>7</th>\n",
+       "      <th>8</th>\n",
+       "      <th>9</th>\n",
+       "      <th>fitness_mochila</th>\n",
+       "      <th>peso_mochila</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>5</th>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>3210</td>\n",
+       "      <td>539</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "   0  1  2  3  4  5  6  7  8  9  fitness_mochila  peso_mochila\n",
+       "5  1  1  0  0  1  0  0  1  1  0             3210           539"
+      ]
+     },
+     "execution_count": 75,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "padre1=df.sample(3).sort_values(by='fitness_mochila',ascending=False).head(1)\n",
+    "padre1"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 76,
+   "id": "dca85537",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>0</th>\n",
+       "      <th>1</th>\n",
+       "      <th>2</th>\n",
+       "      <th>3</th>\n",
+       "      <th>4</th>\n",
+       "      <th>5</th>\n",
+       "      <th>6</th>\n",
+       "      <th>7</th>\n",
+       "      <th>8</th>\n",
+       "      <th>9</th>\n",
+       "      <th>fitness_mochila</th>\n",
+       "      <th>peso_mochila</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>3780</td>\n",
+       "      <td>522</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "   0  1  2  3  4  5  6  7  8  9  fitness_mochila  peso_mochila\n",
+       "3  0  0  0  1  0  1  1  1  0  0             3780           522"
+      ]
+     },
+     "execution_count": 76,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "padre2=df.sample(3).sort_values(by='fitness_mochila',ascending=False).head(1)\n",
+    "padre2"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 83,
+   "id": "ee0d8fc4",
+   "metadata": {
+    "scrolled": false
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "4"
+      ]
+     },
+     "execution_count": 83,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "#cruzamiento binario\n",
+    "corte = random.randint(0,9)\n",
+    "corte"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 114,
+   "id": "b593dd3f",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "[1, 1, 0, 0, 1, 0, 0, 1, 1, 0]"
+      ]
+     },
+     "execution_count": 114,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "padre1_array = list(np.array(padre1.drop(columns=['fitness_mochila', 'peso_mochila']))[0])\n",
+    "padre1_array"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 116,
+   "id": "af66a4d8",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "[0, 0, 0, 1, 0, 1, 1, 1, 0, 0]"
+      ]
+     },
+     "execution_count": 116,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "padre2_array = list(np.array(padre2.drop(columns=['fitness_mochila', 'peso_mochila']))[0])\n",
+    "padre2_array"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 118,
+   "id": "e8cd598c",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[1, 1, 0, 0, 0, 1, 1, 1, 0, 0]\n",
+      "[0, 0, 0, 1, 1, 0, 0, 1, 1, 0]\n"
+     ]
+    }
+   ],
+   "source": [
+    "\n",
+    "hijo1= padre1_array[:corte] + padre2_array[corte:]\n",
+    "hijo2= padre2_array[:corte] + padre1_array[corte:]\n",
+    "print(hijo1)\n",
+    "print(hijo2)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 120,
+   "id": "24203fb1",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#convertir df en lista: padre2.to_numpy().tolist()\n",
+    "#convertir df en lista con columnas: df.to_numpy().transpose().tolist()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "2c8d00f5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#curzamiento binario en varios puntos\n"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.8.8"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
